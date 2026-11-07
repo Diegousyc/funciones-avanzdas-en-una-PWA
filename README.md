@@ -87,3 +87,5 @@ Comprobaciones complementarias: `node --check app.js`, `node --check service-wor
 - `server.py`: servidor HTTP y endpoints de la API.
 - `tests/test_server.py`: pruebas automatizadas del backend.
 - `icons/icon.svg`: icono de la aplicación.
+#   f u n c i o n e s - a v a n z d a s - e n - u n a - P W A  
+ 
