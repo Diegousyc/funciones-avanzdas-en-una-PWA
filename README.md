@@ -20,6 +20,22 @@ La interfaz también puede abrirse con Live Server. En ese caso el catálogo, lo
 - **Servidor (`server.py`)**: sirve los archivos estáticos, valida los productos recibidos por HTTP, evita duplicados por identificador y persiste los productos sincronizados en `server-data/products.json`.
 - **API**: `GET /api/products` devuelve `{ "products": [...] }`; `POST /api/products` recibe un producto JSON y devuelve `{ "product": ... }`. El Service Worker no cachea esta API, de modo que una respuesta guardada no suplante los datos del servidor.
 - **Modo sin conexión**: el Service Worker cachea el App Shell y recursos esenciales. Los cambios del formulario se guardan primero en el navegador y quedan pendientes hasta recuperar la conexión; la app también ofrece un reintento manual. El backend no requiere sincronización en segundo plano.
+- **Actualización de la PWA**: al publicar una nueva versión del Service Worker, cambia `CACHE_NAME` en `service-worker.js`. El navegador instala el nuevo App Shell, activa el worker y recarga la página una vez que toma el control.
+- **Notificaciones locales**: en **Agregar producto**, pulsa **Activar notificaciones** y concede permiso. Se muestra un aviso cuando se completa una sincronización con productos pendientes. No hay push remoto ni suscripción a un servidor push.
+- **Cámara/fotos**: en el formulario de producto, elige **Foto del producto** y, en un dispositivo compatible, selecciona **Tomar foto**. El navegador solicita acceso como parte de esa acción. La imagen se reduce y conserva en el almacenamiento local del navegador junto al producto; no se sube al servidor. Sin permiso o cámara, se puede continuar con el icono sugerido.
+- **Seguridad del contexto**: Service Worker y cámara requieren `localhost` o HTTPS; no abras el proyecto con `file://`.
+- **Geolocalización**: el botón **Consultar ubicación** solicita permiso solo al pulsarlo y muestra latitud, longitud y precisión aproximada. La app no envía ni guarda esas coordenadas.
+
+## Pruebas manuales en navegador
+
+1. Ejecuta `python server.py` y abre `http://127.0.0.1:8000` en Chrome o Edge. Usa `localhost`/HTTPS; `file://` no permite probar estas APIs.
+2. **Service Worker y actualización**: abre DevTools → **Application** → **Service Workers** y confirma que `service-worker.js` esté activo. Recarga la página. Al cambiar el código del worker, incrementa `CACHE_NAME`; el nuevo worker instalará y activará la versión actualizada.
+3. **Offline**: en DevTools → **Network**, activa **Offline** y recarga. La interfaz y el catálogo local deben abrir. Agrega un producto y confirma que aparece como pendiente. Vuelve a **Online** y pulsa **Enviar pendientes** si no se sincroniza automáticamente.
+4. **Notificación**: en **Agregar producto**, pulsa **Activar notificaciones** y permite el aviso. Crea un producto offline, vuelve online y sincroniza una cola no vacía. Debe aparecer una notificación de sincronización. Si el navegador no la muestra, revisa el permiso del sitio y las notificaciones del sistema operativo.
+5. **Cámara/foto**: en el formulario pulsa el selector **Foto del producto**. En un teléfono puede ofrecer **Tomar foto**; en escritorio puedes elegir una imagen para comprobar vista previa, compresión y persistencia. Acepta el permiso si aparece. Guarda el producto y recarga: la foto debe permanecer en la tarjeta. También puedes repetir offline.
+6. **Geolocalización**: pulsa **Consultar ubicación** y acepta el permiso del sitio. Deben mostrarse coordenadas y precisión. Para probar la denegación, cambia el permiso de ubicación del sitio a **Bloquear** desde el icono junto a la dirección y vuelve a pulsar; la pantalla debe explicar cómo habilitarlo.
+
+Los permisos se controlan desde los ajustes del sitio en el navegador. Si se deniegan, restablece el permiso desde ese menú para volver a ver el diálogo de autorización.
 
 ## Pruebas
 
